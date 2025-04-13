@@ -1,0 +1,237 @@
+CREATE DATABASE oficina;
+
+CREATE TABLE IF NOT EXISTS `oficina`.`Clientes` (
+  `idClientes` INT NOT NULL,
+  `nome` VARCHAR(45) NOT NULL,
+  `endereco` VARCHAR(45) NOT NULL,
+  `telefone` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idClientes`))
+
+CREATE TABLE IF NOT EXISTS `oficina`.`Veiculos` (
+  `veiculo_id` INT NOT NULL,
+  `marca` VARCHAR(45) NULL,
+  `modelo` VARCHAR(45) NULL,
+  `ano` INT NULL,
+  `placa` VARCHAR(45) NULL,
+  `Clientes_idClientes` INT NOT NULL,
+  PRIMARY KEY (`veiculo_id`, `Clientes_idClientes`)
+  INDEX `fk_Veiculos_Clientes_idx` (`Clientes_idClientes` ASC) VISIBLE,
+  CONSTRAINT `fk_Veiculos_Clientes`
+    FOREIGN KEY (`Clientes_idClientes`)
+    REFERENCES `oficina`.`Clientes` (`idClientes`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+
+CREATE TABLE IF NOT EXISTS `oficina`.`OrdensServico` (
+  `os_id` INT NOT NULL,
+  `data_emissao` DATE NULL,
+  `data_entrega` DATE NULL,
+  `valor_total` FLOAT NULL,
+  `status` VARCHAR(45) NULL,
+  `data_conclusao` DATE NULL,
+  `Veiculos_veiculo_id` INT NOT NULL,
+  `Veiculos_Clientes_idClientes` INT NOT NULL,
+  PRIMARY KEY (`os_id`, `Veiculos_veiculo_id`, `Veiculos_Clientes_idClientes`),
+  INDEX `fk_OrdensServico_Veiculos1_idx` (`Veiculos_veiculo_id` ASC, `Veiculos_Clientes_idClientes` ASC) VISIBLE,
+  CONSTRAINT `fk_OrdensServico_Veiculos1`
+    FOREIGN KEY (`Veiculos_veiculo_id` , `Veiculos_Clientes_idClientes`)
+    REFERENCES `oficina`.`Veiculos` (`veiculo_id` , `Clientes_idClientes`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+
+CREATE TABLE IF NOT EXISTS `oficina`.`EquipeMecanicos` (
+  `Mecanicos_mecanico_id` INT NOT NULL,
+  `OrdensServico_os_id` INT NOT NULL,
+  PRIMARY KEY (`Mecanicos_mecanico_id`, `OrdensServico_os_id`),
+  INDEX `fk_Mecanicos_has_OrdensServico_OrdensServico1_idx` (`OrdensServico_os_id` ASC) VISIBLE,
+  INDEX `fk_Mecanicos_has_OrdensServico_Mecanicos1_idx` (`Mecanicos_mecanico_id` ASC) VISIBLE,
+  CONSTRAINT `fk_Mecanicos_has_OrdensServico_Mecanicos1`
+    FOREIGN KEY (`Mecanicos_mecanico_id`)
+    REFERENCES `oficina`.`Mecanicos` (`mecanico_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Mecanicos_has_OrdensServico_OrdensServico1`
+    FOREIGN KEY (`OrdensServico_os_id`)
+    REFERENCES `oficina`.`OrdensServico` (`os_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+
+CREATE TABLE IF NOT EXISTS `oficina`.`Mecanicos` (
+  `mecanico_id` INT NOT NULL,
+  `nome` VARCHAR(45) NULL,
+  `endereco` VARCHAR(45) NULL,
+  `especialidade` VARCHAR(45) NULL,
+  `Mecanicoscol` VARCHAR(45) NULL,
+  PRIMARY KEY (`mecanico_id`))
+
+CREATE TABLE IF NOT EXISTS `oficina`.`ServicosOS` (
+  `OrdensServico_os_id` INT NOT NULL,
+  `Servicos_servico_id` INT NOT NULL,
+  PRIMARY KEY (`OrdensServico_os_id`, `Servicos_servico_id`),
+  INDEX `fk_OrdensServico_has_Servicos_Servicos1_idx` (`Servicos_servico_id` ASC) VISIBLE,
+  INDEX `fk_OrdensServico_has_Servicos_OrdensServico1_idx` (`OrdensServico_os_id` ASC) VISIBLE,
+  CONSTRAINT `fk_OrdensServico_has_Servicos_OrdensServico1`
+    FOREIGN KEY (`OrdensServico_os_id`)
+    REFERENCES `oficina`.`OrdensServico` (`os_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_OrdensServico_has_Servicos_Servicos1`
+    FOREIGN KEY (`Servicos_servico_id`)
+    REFERENCES `oficina`.`Servicos` (`servico_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+
+CREATE TABLE IF NOT EXISTS `oficina`.`Servicos` (
+  `servico_id` INT NOT NULL,
+  `descricao` VARCHAR(45) NULL,
+  `valor_mao_obra` FLOAT NULL,
+  PRIMARY KEY (`servico_id`))
+
+CREATE TABLE IF NOT EXISTS `oficina`.`PecasServicosOS` (
+  `Pecas_peca_id` INT NOT NULL,
+  `OS/Servico_OrdensServico_os_id` INT NOT NULL,
+  `OS/Servico_Servicos_servico_id` INT NOT NULL,
+  PRIMARY KEY (`Pecas_peca_id`, `OS/Servico_OrdensServico_os_id`, `OS/Servico_Servicos_servico_id`),
+  INDEX `fk_Pecas_has_OS/Servico_OS/Servico1_idx` (`OS/Servico_OrdensServico_os_id` ASC, `OS/Servico_Servicos_servico_id` ASC) VISIBLE,
+  INDEX `fk_Pecas_has_OS/Servico_Pecas1_idx` (`Pecas_peca_id` ASC) VISIBLE,
+  CONSTRAINT `fk_Pecas_has_OS/Servico_Pecas1`
+    FOREIGN KEY (`Pecas_peca_id`)
+    REFERENCES `oficina`.`Pecas` (`peca_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Pecas_has_OS/Servico_OS/Servico1`
+    FOREIGN KEY (`OS/Servico_OrdensServico_os_id` , `OS/Servico_Servicos_servico_id`)
+    REFERENCES `oficina`.`ServicosOS` (`OrdensServico_os_id` , `Servicos_servico_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+
+CREATE TABLE IF NOT EXISTS `oficina`.`Pecas` (
+  `peca_id` INT NOT NULL,
+  `descricao` VARCHAR(45) NULL,
+  `valor` FLOAT NULL,
+  PRIMARY KEY (`peca_id`))
+
+* Recuperações simples com SELECT Statement;
+
+	SELECT * FROM Clientes;
+
+	SELECT nome, telefone FROM Clientes;
+
+* Filtros com WHERE Statement;
+
+	SELECT * FROM Veiculos WHERE marca = 'Volkswagen';
+
+	SELECT * FROM OrdensServico WHERE status = 'Em Andamento';
+
+* Crie expressões para gerar atributos derivados;
+
+Calcular o valor total de cada ordem de serviço (considerando mão de obra e peças):
+
+SELECT 
+    os.os_id,
+    os.data_emissao,
+    (os.valor_total + SUM(s.valor_mao_obra) + SUM(p.valor)) AS valor_total_calculado
+FROM 
+    OrdensServico os
+JOIN 
+    ServicosOS sos ON os.os_id = sos.os_id
+JOIN 
+    Servicos s ON sos.servico_id = s.servico_id
+JOIN
+    PecasServicosOS psos ON sos.servicosos_id = psos.servicosos_id
+JOIN
+    Pecas p ON psos.peca_id = p.peca_id
+GROUP BY 
+    os.os_id;
+
+Calcular a idade dos veículos:
+
+SELECT 
+    veiculo_id,
+    marca,
+    modelo,
+    (YEAR(CURDATE()) - ano) AS idade
+FROM 
+    Veiculos;
+
+* Defina ordenações dos dados com ORDER BY;
+
+Listar clientes em ordem alfabética:
+
+SELECT * FROM Clientes ORDER BY nome ASC;
+
+Listar ordens de serviço por data de emissão, da mais recente para a mais antiga:
+
+SELECT * FROM OrdensServico ORDER BY data_emissao DESC;
+
+* Condições de filtros aos grupos – HAVING Statement;
+
+Listar clientes que possuem mais de 2 veículos:
+
+SELECT 
+    c.cliente_id,
+    c.nome,
+    COUNT(v.veiculo_id) AS total_veiculos
+FROM 
+    Clientes c
+JOIN 
+    Veiculos v ON c.cliente_id = v.cliente_id
+GROUP BY 
+    c.cliente_id, c.nome
+HAVING 
+    COUNT(v.veiculo_id) > 2;
+
+Listar mecânicos que trabalharam em mais de 5 ordens de serviço:
+
+SELECT 
+    m.mecanico_id,
+    m.nome,
+    COUNT(em.os_id) AS total_ordens
+FROM 
+    Mecanicos m
+JOIN 
+    EquipeMecanicos em ON m.mecanico_id = em.mecanico_id
+GROUP BY 
+    m.mecanico_id, m.nome
+HAVING 
+    COUNT(em.os_id) > 5;
+
+* Crie junções entre tabelas para fornecer uma perspectiva mais complexa dos dados;
+
+Listar todas as ordens de serviço com informações do cliente e do veículo:
+
+SELECT 
+    os.os_id,
+    os.data_emissao,
+    c.nome AS nome_cliente,
+    v.marca,
+    v.modelo
+FROM 
+    OrdensServico os
+JOIN 
+    Veiculos v ON os.veiculo_id = v.veiculo_id
+JOIN 
+    Clientes c ON v.cliente_id = c.cliente_id;
+
+
+Listar todos os serviços realizados em uma ordem de serviço específica, com informações do mecânico responsável:
+
+SELECT 
+    os.os_id,
+    s.descricao AS descricao_servico,
+    m.nome AS nome_mecanico
+FROM 
+    OrdensServico os
+JOIN 
+    ServicosOS sos ON os.os_id = sos.os_id
+JOIN 
+    Servicos s ON sos.servico_id = s.servico_id
+JOIN 
+    EquipeMecanicos em ON os.os_id = em.os_id
+JOIN 
+    Mecanicos m ON em.mecanico_id = m.mecanico_id
+WHERE 
+    os.os_id = 456;
+
+
+
